@@ -13,11 +13,14 @@ This is scheduled on regular intervals.
 
 """
 
+import traceback
 import schedule,os
 import time
 from datetime import datetime
 import Mail_Utils as mail
 import Globals
+import ParamikoMain as linuxserver
+import paramiko_globals as linuxglobals
 
 def get_curr_time():
     """ Returns the current time """
@@ -58,8 +61,17 @@ def genStatusMail(pjobName):
     Subject     = l_dict_details.get('Subject','')
     daily_status_html   = '{}.html'.format(os.path.splitext(ExcelName)[0])
     subject     = '{}   {} '.format(Subject,get_curr_time())
-    ToList      = l_dict_details.get('ToList','') 
-    Globals.pr_sendMail_Plsql(sender,subject,os.path.join(ExcelPath,daily_status_html),ExcelPath,ToList)
+    ToList      = l_dict_details.get('ToList','')
+    try:
+        if Globals.MAIL_OPTION == 'PLSQL':
+            Globals.pr_sendMail_Plsql(sender,subject,os.path.join(ExcelPath,daily_status_html),ExcelPath,ToList)
+        elif Globals.MAIL_OPTION == 'LINUX':
+            lst_files = []
+            lst_files.append(daily_status_html)
+            print('html file will be moved to Linux server and mail would be generated from Linux.')
+            linuxserver.local_to_server(linuxglobals.localpath, linuxglobals.serverpath,lst_files)
+    except:
+        print(traceback.print_exc())
     print('status sending completed... at {}'.format(get_curr_time()))
 
 def schedule_job():
@@ -71,14 +83,14 @@ def schedule_job():
         print('Start of  Status Mail Generation')
         genStatusMail('JOB1')
         genStatusMail('JOB2')
-        print('End  of Status Mail Generation')        
+        print('End  of  Status Mail Generation')        
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print('status sending completed... at {}'.format(dt_string))
         print('\n \n *********************************************** \n \n ')
         
-    schedule.every().tuesday.at("16:45").do(job)
-    schedule.every().thursday.at("16:45").do(job)
+    schedule.every().tuesday.at("16:30").do(job)
+    schedule.every().thursday.at("16:30").do(job)
     #job()
 
     

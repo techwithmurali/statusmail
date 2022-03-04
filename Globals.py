@@ -2,7 +2,7 @@ import cx_Oracle,os
 import sys,traceback
 
 conn_str =  'USERNAME/PASSWORD@INSTANCE'  ## FOR MAIL GENERATION USING PLSQL 
-
+MAIL_OPTION = 'LINUX' #PLSQL
 g_global_dict = {}
 ''' *******************************************************************************************'''
 l_dict_details = {}
